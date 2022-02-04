@@ -6,6 +6,7 @@ import pyperclip
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver import Chrome, DesiredCapabilities
+from selenium.webdriver.common.by import By
 
 
 class Parol:
@@ -46,11 +47,10 @@ class Parol:
         url = r'https://www.passwordmonster.com/'
         ua = dict(DesiredCapabilities.CHROME)
         options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('window-size=1920x935')
-        browser = webdriver.Chrome(chrome_options=options)
+        options.add_argument('--headless')
+        browser = webdriver.Chrome(options=options)
         browser.get(url)
-        input_tab = browser.find_element_by_xpath(r'//*[@id="lgd_out_pg_pass"]')
+        input_tab = browser.find_element(By.XPATH, r'//*[@id="lgd_out_pg_pass"]')
         input_tab.send_keys(self.line)
         soup = BeautifulSoup(browser.page_source, 'lxml')
         self.st = soup.find(id='first_estimate').text.strip()
@@ -66,15 +66,16 @@ class Parol:
         root.title("Генератор паролей")
         root.resizable(False, False)
 
+        def show():
+            but_parol.config(text=self.line)
+
         def again():
             but_parol.config(text=f'{len(self.line) * "*"}', command=copy)
             self.line = ''
             h = Parol
             h.parol_generator(self)
             h.parsing(self)
-
-        def show():
-            but_parol.config(text=self.line)
+            lab_info.config(text=f'Этот пароль можно будет взломать через {self.st}*')
 
         def copy():
             pyperclip.copy(self.line)
